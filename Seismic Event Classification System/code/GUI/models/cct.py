@@ -1,0 +1,170 @@
+import torch
+from torch import nn, einsum
+import numpy as np
+import torch.nn.functional as F
+from einops import rearrange,repeat
+from einops.layers.torch import Rearrange
+
+class Residual(nn.Module):
+    def __init__(self, fn):
+        super().__init__()
+        self.fn = fn
+    def forward(self, x, **kwargs):
+        return self.fn(x, **kwargs) + x
+
+class PreNorm(nn.Module):
+    def __init__(self, dim, fn):
+        super().__init__()
+        self.norm = nn.LayerNorm(dim)
+        self.fn = fn
+    def forward(self, x, **kwargs):
+        return self.fn(self.norm(x), **kwargs)
+
+class FeedForward(nn.Module):
+    def __init__(self, dim, hidden_dim, dropout = 0.):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(dim, hidden_dim),
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, dim),
+            nn.Dropout(dropout)
+        )
+    def forward(self, x):
+        return self.net(x)
+
+class Attention(nn.Module):
+    def __init__(self, dim, heads = 8, dim_head = 64, dropout = 0.):
+        super().__init__()
+        inner_dim = dim_head *  heads
+        project_out = not (heads == 1 and dim_head == dim)
+
+        self.heads = heads
+        self.scale = dim_head ** -0.5
+
+        self.to_qkv = nn.Linear(dim, inner_dim * 3, bias = False)
+
+        self.to_out = nn.Sequential(
+            nn.Linear(inner_dim, dim),
+            nn.Dropout(dropout)
+        ) if project_out else nn.Identity()
+
+    def forward(self, x):
+        b, n, _, h = *x.shape, self.heads
+        qkv = self.to_qkv(x).chunk(3, dim = -1)
+        q, k, v = map(lambda t: rearrange(t, 'b n (h d) -> b h n d', h = h), qkv)
+
+        dots = einsum('b h i d, b h j d -> b h i j', q, k) * self.scale
+
+        attn = dots.softmax(dim=-1)
+
+        out = einsum('b h i j, b h j d -> b h i d', attn, v)
+        out = rearrange(out, 'b h n d -> b n (h d)')
+        out =  self.to_out(out)
+        return out
+
+class Transformer(nn.Module):
+    def __init__(self, dim, depth, heads, dim_head, mlp_dim, dropout = 0.):
+        super().__init__()
+        self.layers = nn.ModuleList([])
+        for _ in range(depth):
+            self.layers.append(nn.ModuleList([
+                PreNorm(dim, Attention(dim, heads = heads, dim_head = dim_head, dropout = dropout)),
+                PreNorm(dim, FeedForward(dim, mlp_dim, dropout = dropout))
+            ]))
+    def forward(self, x):
+        for attn, ff in self.layers:
+            x = attn(x) + x
+            x = ff(x) + x
+        return x
+
+class ConvEmbed(nn.Module):
+    def __init__(self, in_channel, out_channel, kernel_size=7, stride=2, padding=3, pool_kernel_size=3, pool_stride=2,
+                 pool_padding=1):
+        super(ConvEmbed, self).__init__()
+
+
+
+        self.conv_layers = nn.Sequential(
+            nn.Conv2d(in_channel, out_channel, kernel_size=kernel_size, stride=stride,
+                    padding=padding, bias=False),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=pool_kernel_size, stride=pool_stride, padding=pool_padding),
+            Rearrange('b d h w -> b (h w) d')
+            )
+
+        self.apply(self.init_weight)
+
+    def sequence_length(self, n_channels=3, height=224, width=224):
+        return self.forward(torch.zeros((1, n_channels, height, width))).shape[1]
+
+    def forward(self, x):
+        return self.conv_layers(x)
+
+    @staticmethod
+    def init_weight(m):
+        if isinstance(m, nn.Conv2d):
+            nn.init.kaiming_normal_(m.weight)
+
+
+class CompactTransformer(nn.Module):
+    def __init__(self,image_height, image_width, patch_height, patch_width, num_classes, dim=256, depth=12, heads=12, pool='cls', in_channels=3,
+                 dim_head=64, dropout=0.1, emb_dropout=0.1, scale_dim=4, conv_embed=False):
+        super().__init__()
+        assert pool in {'cls', 'mean'}, 'pool type must be either cls (cls token) or mean (mean pooling)'
+        assert image_height % patch_height == 0 and image_width % patch_width == 0, 'Image dimensions must be divisible by the patch size.'
+        num_patches = (image_height // patch_height) * (image_width // patch_width)
+        patch_dim = in_channels * patch_height * patch_width
+        
+        if conv_embed:
+            self.to_patch_embedding = ConvEmbed(in_channels, dim)
+            num_patches = self.to_patch_embedding.sequence_length(height=image_height, width=image_width)
+        else:
+            self.to_patch_embedding = nn.Sequential(
+                Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=patch_size, p2=patch_size),
+                nn.Linear(patch_dim, dim),
+            )
+        self.pos_embedding = nn.Parameter(torch.randn(1, num_patches, dim))
+        nn.init.trunc_normal_(self.pos_embedding, std=0.2)
+        self.dropout = nn.Dropout(emb_dropout)
+        self.transformer = Transformer(dim, depth, heads, dim_head, dim*scale_dim, dropout)
+        self.pool = nn.Linear(dim, 1)
+        self.mlp_head = nn.Sequential(
+            nn.LayerNorm(dim),
+            nn.Linear(dim, num_classes)
+        )
+        self.apply(self.init_weight)
+    def forward(self, img):
+        x = self.to_patch_embedding(img)
+        b, n, _ = x.shape
+        x += self.pos_embedding[:, :(n + 1)]
+        x = self.dropout(x)
+        x = self.transformer(x)
+        
+        g = self.pool(x)
+        xl = F.softmax(g, dim=1)
+        x = einsum('b n l, b n d -> b l d', xl, x)
+        return self.mlp_head(x.squeeze(-2))
+
+    @staticmethod
+    def init_weight(m):
+        if isinstance(m, nn.Linear):
+            nn.init.trunc_normal_(m.weight, std=.02)
+            if isinstance(m, nn.Linear) and m.bias is not None:
+                nn.init.constant_(m.bias, 0)
+        elif isinstance(m, nn.LayerNorm):
+            nn.init.constant_(m.bias, 0)
+            nn.init.constant_(m.weight, 1.0)
+
+
+# if __name__ == "__main__":
+#     img = torch.ones([1, 3, 36, 72])
+
+#     cct = CompactTransformer(36,72,12,12, 3, conv_embed=True)
+#     parameters = filter(lambda p: p.requires_grad, cct.parameters())
+#     parameters = sum([np.prod(p.size()) for p in parameters]) / 1_000_000
+#     print('Trainable Parameters in CCT: %.3fM' % parameters)
+
+#     out = cct(img)
+
+#     print("Shape of out :", out.shape)  # [B, num_classes]
