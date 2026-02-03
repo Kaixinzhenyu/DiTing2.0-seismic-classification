@@ -9,6 +9,7 @@ Extensive Model Supplement: An Additional_code directory containing alternative 
 
 ## 📂 Project Structure
 
+```text
 DiTing2.0-seismic-classification/
 ├── DiTing2.0_benchmark_runner/      # Core Benchmarking Suite for DiTing 2.0
 │   ├── models/                      # Model architectures and frameworks
@@ -125,9 +126,6 @@ The functional prototype of the **Seismic Event Classification System** provides
 
 
 ## 📝 Citation
-
-[cite_start]If you use the DiTing 2.0 dataset in your research, please cite it according to the official requirements:
-
 > Zhao, M., Xiao, Z.W., Chen, S., Zhang, B., et al., 2023. Diting Dataset 2.0 – multi-functional large-scale artificial intelligence training data set from Chinese Seismic Network. [cite_start][EB/OL]. https://data.earthquake.cn, 2023. DOI: 10.12080/nedc.11.ds.2023.0002 or CSTR: 12166.11.ds.2023.0002. 
 
 ## 📜 License
