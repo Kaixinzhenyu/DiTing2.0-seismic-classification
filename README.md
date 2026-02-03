@@ -131,7 +131,7 @@ Zhenyu Pei, Xinyu Yang, Shiyu Liang, Zeyuan Zhong, Wenjing Xu, Lihua Fang, Kai D
 
 2. Dataset Citation
 If you use the DiTing 2.0 dataset in your work, please cite it according to the official requirements:
-Zhao, M., Xiao, Z.W., Chen, S., Zhang, B., et al., 2023. Diting Dataset 2.0 – multi-functional large-scale artificial intelligence training data set from Chinese Seismic Network. [EB/OL]. https://data.earthquake.cn, 2023. DOI: 10.12080/nedc.11.ds.2023.0002.
+* Zhao, M., Xiao, Z.W., Chen, S., Zhang, B., et al., 2023. Diting Dataset 2.0 – multi-functional large-scale artificial intelligence training data set from Chinese Seismic Network. [EB/OL]. https://data.earthquake.cn, 2023. DOI: 10.12080/nedc.11.ds.2023.0002.
 
 ## 📜 License
 
