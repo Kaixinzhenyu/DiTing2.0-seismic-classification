@@ -2,10 +2,10 @@
 This repository contains the self-developed source code and benchmarking suite for the research project focused on seismic event classification using the DiTing 2.0 dataset. It provides a complete pipeline from raw waveform processing to multi-class classification and automated system prototyping.
 
 ## 🌟 Key Features
-DiTing 2.0 Benchmarking: A dedicated DiTing2.0_benchmark_runner for high-performance 3-class (Earthquake, Explosion, Collapse) and 4-class (including Noise) classification.
-Automated Prototype System: A functional Seismic Event Classification System validated on the MSH dataset, designed for real-world application testing.
-Specialized Data Pipelines: Tailored pre-processing scripts (.ipynb) for processing natural earthquakes, collapses, explosions, and noise events specifically for the DiTing 2.0 data format.
-Extensive Model Supplement: An Additional_code directory containing alternative model architectures and experimental frameworks explored throughout the research.
+* DiTing 2.0 Benchmarking: A dedicated DiTing2.0_benchmark_runner for high-performance 3-class (Earthquake, Explosion, Collapse) and 4-class (including Noise) classification.
+* Automated Prototype System: A functional Seismic Event Classification System validated on the MSH dataset, designed for real-world application testing.
+* Specialized Data Pipelines: Tailored pre-processing scripts (.ipynb) for processing natural earthquakes, collapses, explosions, and noise events specifically for the DiTing 2.0 data format.
+* Extensive Model Supplement: An Additional_code directory containing alternative model architectures and experimental frameworks explored throughout the research.
 
 ## 📂 Project Structure
 
