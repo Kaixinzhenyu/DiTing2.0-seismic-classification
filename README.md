@@ -29,7 +29,7 @@ DiTing2.0-seismic-classification/
 ├── requirements.txt                 # Python dependencies
 ├── README.md                        # Project documentation
 └── LICENSE                          # MIT License
-
+```
 ## 📊 Data Availability
 To ensure research reproducibility while respecting data provider policies, the datasets used in this project are not hosted in this repository. Please obtain them from the following official sources:
 1. DiTing 2.0 Dataset
