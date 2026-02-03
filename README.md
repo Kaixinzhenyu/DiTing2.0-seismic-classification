@@ -126,7 +126,12 @@ The functional prototype of the **Seismic Event Classification System** provides
 
 
 ## 📝 Citation
-> Zhao, M., Xiao, Z.W., Chen, S., Zhang, B., et al., 2023. Diting Dataset 2.0 – multi-functional large-scale artificial intelligence training data set from Chinese Seismic Network. [cite_start][EB/OL]. https://data.earthquake.cn, 2023. DOI: 10.12080/nedc.11.ds.2023.0002 or CSTR: 12166.11.ds.2023.0002. 
+1. Research Paper (In Revision)
+Zhenyu Pei, Xinyu Yang, Shiyu Liang, Zeyuan Zhong, Wenjing Xu, Lihua Fang, Kai Deng, Jun Hu, and Ke Jia. CapsNet-Enhanced Seismic Event Classification: Benchmarking and System Deployment on the DiTing 2.0 Dataset. Geophysical Journal International (In Revision, 2026). 
+
+2. Dataset Citation
+If you use the DiTing 2.0 dataset in your work, please cite it according to the official requirements:
+Zhao, M., Xiao, Z.W., Chen, S., Zhang, B., et al., 2023. Diting Dataset 2.0 – multi-functional large-scale artificial intelligence training data set from Chinese Seismic Network. [EB/OL]. https://data.earthquake.cn, 2023. DOI: 10.12080/nedc.11.ds.2023.0002.
 
 ## 📜 License
 
