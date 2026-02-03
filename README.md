@@ -82,6 +82,8 @@ bash run_dual_gpu.sh
 ```
 Note: Execution logs will be automatically written to logs_3class.txt and logs_4class.txt for real-time monitoring.
 
+---
+
 ### Step 4: Prototype System Execution
 To launch the automated system prototype with the Graphical User Interface (GUI):
 ```bash
