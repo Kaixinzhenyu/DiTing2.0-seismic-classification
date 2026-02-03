@@ -127,7 +127,7 @@ The functional prototype of the **Seismic Event Classification System** provides
 
 ## 📝 Citation
 1. Research Paper (In Revision)
-Zhenyu Pei, Xinyu Yang, Shiyu Liang, Zeyuan Zhong, Wenjing Xu, Lihua Fang, Kai Deng, Jun Hu, and Ke Jia. CapsNet-Enhanced Seismic Event Classification: Benchmarking and System Deployment on the DiTing 2.0 Dataset. Geophysical Journal International (In Revision, 2026). 
+* Zhenyu Pei, Xinyu Yang, Shiyu Liang, Zeyuan Zhong, Wenjing Xu, Lihua Fang, Kai Deng, Jun Hu, and Ke Jia. CapsNet-Enhanced Seismic Event Classification: Benchmarking and System Deployment on the DiTing 2.0 Dataset. Geophysical Journal International (In Revision, 2026). 
 
 2. Dataset Citation
 If you use the DiTing 2.0 dataset in your work, please cite it according to the official requirements:
